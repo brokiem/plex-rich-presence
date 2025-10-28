@@ -18,7 +18,7 @@ public class PlexSessionMapper
             GetMediaType(metadata.Type),
             metadata.Duration,
             metadata.ViewOffset,
-            metadata.Thumb is null ? null : $"{plexServerHost}{metadata.Thumb[1..]}?X-Plex-Token={plexToken}"
+            metadata.Thumb is null ? (metadata.GrandparentThumb is null ? null : $"{plexServerHost}{metadata.GrandparentThumb[1..]}?X-Plex-Token={plexToken}") : $"{plexServerHost}{metadata.Thumb[1..]}?X-Plex-Token={plexToken}"
         );
 
     public PlexSession Map(Metadata metadata, string state, long viewOffset, string plexServerHost, string plexToken) =>
@@ -32,7 +32,7 @@ public class PlexSessionMapper
             GetMediaType(metadata.Type),
             metadata.Duration,
             viewOffset,
-            metadata.Thumb is null ? null : $"{plexServerHost}{metadata.Thumb[1..]}?X-Plex-Token={plexToken}"
+            metadata.Thumb is null ? (metadata.GrandparentThumb is null ? null : $"{plexServerHost}{metadata.GrandparentThumb[1..]}?X-Plex-Token={plexToken}") : $"{plexServerHost}{metadata.Thumb[1..]}?X-Plex-Token={plexToken}"
         );
 
 

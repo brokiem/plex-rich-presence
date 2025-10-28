@@ -217,6 +217,8 @@ public class PlexSessionRenderingServiceTests
                     MediaTitle = "Test Episode",
                     MediaParentTitle = "Test Parent Title",
                     MediaGrandParentTitle = "Test Grand Parent Title",
+                    MediaParentIndex = 1,
+                    MediaIndex = 2,
                     Thumbnail = "Thumbnail URL",
                     MediaType = PlexMediaType.Episode,
                     PlayerState = PlexPlayerState.Buffering,
@@ -224,9 +226,9 @@ public class PlexSessionRenderingServiceTests
                     ViewOffset = 10_000,
                 },
                 ActivityType.Watching,
-                StatusDisplayType.Details,
+                StatusDisplayType.State,
                 "Test Grand Parent Title", // Status
-                "Test Episode", // Details
+                "S01E02 Test Episode", // Details
                 false, // Expect Timestamp
                 "sand-clock"
             },
@@ -236,6 +238,8 @@ public class PlexSessionRenderingServiceTests
                     MediaTitle = "Test Episode",
                     MediaParentTitle = "Test Parent Title",
                     MediaGrandParentTitle = "Test Grand Parent Title",
+                    MediaParentIndex = 1,
+                    MediaIndex = 2,
                     Thumbnail = "Thumbnail URL",
                     MediaType = PlexMediaType.Episode,
                     PlayerState = PlexPlayerState.Paused,
@@ -243,9 +247,9 @@ public class PlexSessionRenderingServiceTests
                     ViewOffset = 10_000,
                 },
                 ActivityType.Watching,
-                StatusDisplayType.Details,
+                StatusDisplayType.State,
                 "Test Grand Parent Title", // Status
-                "Test Episode", // Details
+                "S01E02 Test Episode", // Details
                 false, // Expect Timestamp
                 "pause-circle"
             },
@@ -255,6 +259,8 @@ public class PlexSessionRenderingServiceTests
                     MediaTitle = "Test Episode",
                     MediaParentTitle = "Test Parent Title",
                     MediaGrandParentTitle = "Test Grand Parent Title",
+                    MediaParentIndex = 1,
+                    MediaIndex = 2,
                     Thumbnail = "Thumbnail URL",
                     MediaType = PlexMediaType.Episode,
                     PlayerState = PlexPlayerState.Playing,
@@ -262,9 +268,9 @@ public class PlexSessionRenderingServiceTests
                     ViewOffset = 10_000,
                 },
                 ActivityType.Watching,
-                StatusDisplayType.Details,
+                StatusDisplayType.State,
                 "Test Grand Parent Title", // Status
-                "Test Episode", // Details
+                "S01E02 Test Episode", // Details
                 true, // Expect Timestamp
                 null
             },

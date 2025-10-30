@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: 'Release type'
+        required: true
+        default: patch
+        type: choice
+        options:
+          - minor
+          - major
+          - patch
+
+jobs:
+  release:
+    name: Release new version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get latest release tag
+        uses: dragonish/get-latest-release-tag@v1
+        id: latest
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: 'dragonish/get-latest-release-tag'
+          pre-release: true
+      - name: Install python dependency
+        run: |
+          pip install GitPython
+      - name: Configure git
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "Github Actions"
+      - name: Create new version tag and push it   
+        run: |
+          python ./ci/release-tag.py "${{ steps.latest.outputs.tag }}" "${{ github.event.inputs.release-type }}"

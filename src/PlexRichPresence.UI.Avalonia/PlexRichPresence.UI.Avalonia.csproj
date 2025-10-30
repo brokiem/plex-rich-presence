@@ -4,7 +4,7 @@
         <!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
         <TrimMode>copyused</TrimMode>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-        <Version>2.1.0</Version>
+        <Version>2.2.0</Version>
     </PropertyGroup>
     <ItemGroup>
         <Content Include="plexrichpresence.desktop" CopyToPublishDirectory="Always">
@@ -15,6 +15,7 @@
         </Content>
     </ItemGroup>
     <ItemGroup>
+        <Folder Include="dist\linux-x64\" />
         <Folder Include="Models\" />
         <AvaloniaResource Include="Assets\**" />
         <None Remove=".gitignore" />

@@ -1,0 +1,111 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: "Release type"
+        required: true
+        default: patch
+        type: choice
+        options:
+          - minor
+          - major
+          - patch
+
+jobs:
+  compute-version:
+    name: Release new version
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.version.outputs.result }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install python dependencies
+        run: |
+          pip install GitPython
+          pip install PyGithub
+      - name: Configure git
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "Github Actions"
+      - name: Create new version tag and push it
+        run: |
+          python ./ci/release-tag.py ${{ secrets.GITHUB_TOKEN }} "${{ github.event.inputs.release-type }}"
+      - id: version
+        name: Output version
+        run: |
+          echo "result=$(cat version.txt)" >> "$GITHUB_OUTPUT"
+          echo $GITHUB_OUTPUT
+  build-linux-deb:
+    name: Build, Test and compile executable on Linux
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:8.0
+    needs: [compute-version]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check version
+        run: echo "${{ needs.compute-version.outputs.output1 }}"
+      - name: Install dotnet deb
+        run: |
+          cd src/PlexRichPresence.UI.Avalonia
+          dotnet tool install --global DotnetPackaging.Tool
+          export PATH="$PATH:/github/home/.dotnet/tools"
+          dotnet publish --runtime linux-x64 --configuration Release -p:PublishSingleFile=true --self-contained true
+          cp ./Assets/plex-rich-presence.png ./bin/Release/net8.0/linux-x64/publish/icon.png
+          mkdir artifacts
+          dotnetpackager deb --directory ./bin/Release/net8.0/linux-x64/publish \
+            --output ./artifacts/plex-rich-presence_$(cat ../../version.txt)_linux64.deb \
+            --application-name "PLEX Rich Presence" \
+            --summary "App that allows you to display your current PLEX session in your Discord Rich presence status." \
+            --homepage https://github.com/ombrelin/plex-rich-presence \
+            --license MIT \
+            --version ${{ needs.compute-version.outputs.output1 }}
+      - name: Save deb package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plex-rich-presence-deb
+          path: src/PlexRichPresence.UI.Avalonia/artifacts/
+
+  build-windows-installer:
+    name: Build, Test and publish executable on windows
+    runs-on: windows-latest
+    needs: [compute-version]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Executable
+        run: cd src/PlexRichPresence.UI.Avalonia/ && dotnet publish --runtime win-x64 --configuration Release -p:PublishSingleFile=true --self-contained true --output C:\temp\plex-rich-presence
+      - name: Compile Installer
+        run: iscc installers/windows/installer.iss /dBuildNumber=${{github.run_number}} /dMyAppURL=https://github.com/${{github.repository}}
+      - name: Save Installer as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plex-rich-presence-setup
+          path: C:\temp\plex-rich-presence\plex-rich-presence-setup.exe
+  create-release:
+    name: Create a release for with artifacts
+    needs: [compute-version, build-linux-deb, build-windows-installer]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4.1.7
+        with:
+          name: plex-rich-presence-deb
+          path: linux
+      - uses: actions/download-artifact@v4.1.7
+        with:
+          name: plex-rich-presence-setup
+          path: windows
+      - name: Build
+        run: echo ${{ github.sha }} > Release.txt
+      - name: Get version
+        run: echo "${{ needs.job1.outputs.output1 }}"
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "${{ needs.compute-version.outputs.output1 }}"
+          files: |
+            Release.txt
+            linux/*.deb
+            windows/plex-rich-presence-setup.exe

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       release-type:
-        description: 'Release type'
+        description: "Release type"
         required: true
         default: patch
         type: choice
@@ -20,20 +20,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Get latest release tag
-        uses: dragonish/get-latest-release-tag@v1
-        id: latest
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: 'dragonish/get-latest-release-tag'
-          pre-release: false
-      - name: Install python dependency
+      - name: Install python dependencies
         run: |
           pip install GitPython
+          pip install PyGithub
       - name: Configure git
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "Github Actions"
-      - name: Create new version tag and push it   
+      - name: Create new version tag and push it
         run: |
-          python ./ci/release-tag.py "${{ steps.latest.outputs.tag }}" "${{ github.event.inputs.release-type }}"
+          python ./ci/release-tag.py ${{ secrets.GITHUB_TOKEN }} "${{ github.event.inputs.release-type }}"

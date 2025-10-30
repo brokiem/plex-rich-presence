@@ -4,6 +4,10 @@ from git import Repo
 current_tag = sys.argv[1]
 version_kind = sys.argv[2]
 
+print("Issuing release...")
+print("Current tag : " + current_tag)
+print("Version tag : " + version_kind)
+
 version_parts = current_tag.split('.')
 
 if version_kind == "major":

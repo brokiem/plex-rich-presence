@@ -13,7 +13,7 @@ public class SerieSessionRenderer(IClock clock) : GenericSessionRenderer(clock)
         {
             Type = ActivityType.Watching,
             StatusDisplay = StatusDisplayType.State,
-            Details = $"S{FormatNumber(session.MediaParentIndex)}E{FormatNumber(session.MediaIndex)} {session.MediaTitle}",
+            Details = $"S{session.MediaParentIndex} · E{session.MediaIndex} — {session.MediaTitle}",
             State = $"{session.MediaGrandParentTitle}",
             Assets = new Assets
             {
@@ -22,15 +22,5 @@ public class SerieSessionRenderer(IClock clock) : GenericSessionRenderer(clock)
             },
             Timestamps = playerState.Timestamps
         };
-    }
-
-    private static string FormatNumber(uint number)
-    {
-        string result = string.Empty;
-        if (number < 10)
-        {
-            result += 0;
-        }
-        return result + number;
     }
 }

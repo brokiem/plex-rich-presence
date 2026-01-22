@@ -124,4 +124,10 @@ public partial class ServersPageViewModel
         await this.storageService.RemoveAsync("plex_token");
         await this.navigationService.NavigateToAsync("login");
     }
+    
+    [RelayCommand]
+    private async Task GoBack()
+    {
+        await this.navigationService.NavigateToAsync("activity");
+    }
 }

@@ -4,68 +4,155 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:PlexRichPresence.ViewModels;assembly=PlexRichPresence.ViewModels"
              xmlns:plex-account="clr-namespace:Plex.ServerApi.PlexModels.Account;assembly=Plex.ServerApi"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:ia="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="720"
              x:Class="PlexRichPresence.UI.Avalonia.Views.ServersPage"
              x:DataType="viewModels:ServersPageViewModel">
-    <Grid Margin="16">
-        <Grid.RowDefinitions>.5*,*,*,3*,*</Grid.RowDefinitions>
-
-        <ProgressBar IsVisible="{Binding GetDataCommand.IsRunning}" IsIndeterminate="True" />
-        <StackPanel Orientation="Horizontal" IsVisible="{Binding !GetDataCommand.IsRunning}">
-            <Label HorizontalContentAlignment="Right">Welcome, </Label>
-            <Label Content="{CompiledBinding Username}" />
+    
+    <Grid>
+        <!-- Loading State -->
+        <StackPanel IsVisible="{Binding GetDataCommand.IsRunning}"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Spacing="16">
+            <ProgressBar IsIndeterminate="True" 
+                         Width="200"
+                         Classes="circular"/>
+            <TextBlock Text="Loading your servers..."
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       HorizontalAlignment="Center"/>
         </StackPanel>
-
-        <StackPanel Grid.Row="1" IsVisible="{Binding !GetDataCommand.IsRunning}">
-            <Image VerticalAlignment="Top" x:Name="profilePicture" Width="100" Height="100"
-                   Source="{CompiledBinding ThumbnailUrl}" />
-        </StackPanel>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" IsVisible="{Binding !GetDataCommand.IsRunning}">
-            <Label VerticalAlignment="Center">Choose a PLEX server : </Label>
-            <ComboBox
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                ItemsSource="{CompiledBinding Servers}"
-                SelectedItem="{CompiledBinding SelectedServer}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="plex-account:AccountServer">
-                        <Label Content="{CompiledBinding Name}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-        </StackPanel>
-
-
-        <Expander Grid.Row="3" Header="Manual Server Configuration" IsVisible="{Binding !GetDataCommand.IsRunning}">
-            <Grid>
-                <Grid.RowDefinitions>*,*,*,*</Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <Label>Use Custom Server :</Label>
-                    <ToggleSwitch IsChecked="{CompiledBinding UseCustomServer}" />
+        
+        <!-- Content -->
+        <ScrollViewer IsVisible="{Binding !GetDataCommand.IsRunning}"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="24" Margin="32">
+                
+                <!-- Header with Back Button -->
+                <Button Command="{Binding GoBackCommand}"
+                        HorizontalAlignment="Left"
+                        Classes="Subtle"
+                        ToolTip.Tip="Go back">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ia:Icon Value="fa-solid fa-chevron-left" FontSize="12"/>
+                        <TextBlock Text="Back"/>
+                    </StackPanel>
+                </Button>
+                
+                <!-- User Profile Header -->
+                <Border Classes="card">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <!-- Avatar -->
+                        <Border Classes="avatar" Grid.Column="0">
+                            <Image x:Name="profilePicture" Stretch="UniformToFill"/>
+                        </Border>
+                        
+                        <!-- User Info -->
+                        <StackPanel Grid.Column="1" Margin="16,0" VerticalAlignment="Center" Spacing="4">
+                            <TextBlock Text="{CompiledBinding Username}" FontWeight="SemiBold" FontSize="16"/>
+                            <TextBlock Text="Plex Account" FontSize="12" Opacity="0.6"/>
+                        </StackPanel>
+                        
+                        <!-- Logout Button -->
+                        <Button Grid.Column="2"
+                                Command="{Binding LogOutCommand}"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="Sign out of your Plex account">
+                            <TextBlock Text="Sign Out" FontSize="13"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                
+                <!-- Server Selection -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Select a Server" FontSize="20" FontWeight="SemiBold"/>
+                    <TextBlock Text="Choose the Plex server you want to display activity from"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    
+                    <Border Classes="card-secondary" Margin="0,8,0,0">
+                        <StackPanel Spacing="12">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Your Servers" FontWeight="SemiBold"/>
+                                <ComboBox HorizontalAlignment="Stretch"
+                                          ItemsSource="{CompiledBinding Servers}"
+                                          SelectedItem="{CompiledBinding SelectedServer}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="plex-account:AccountServer">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <ia:Icon Value="fa-solid fa-server" FontSize="14" 
+                                                         Opacity="0.6"/>
+                                                <TextBlock Text="{CompiledBinding Name}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
-                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <Label>Server IP :</Label>
-                    <TextBox IsEnabled="{CompiledBinding UseCustomServer}" Text="{CompiledBinding CustomServerIp}" />
-                </StackPanel>
-                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left"
-                            VerticalAlignment="Top">
-                    <Label>Server Port :</Label>
-                    <TextBox IsEnabled="{CompiledBinding UseCustomServer}" Text="{CompiledBinding CustomServerPort}" />
-                </StackPanel>
-                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <Label>Is Custom Server Owned :</Label>
-                    <ToggleSwitch IsEnabled="{CompiledBinding UseCustomServer}"
-                                  IsChecked="{CompiledBinding IsCustomServerOwned}" />
-                </StackPanel>
-            </Grid>
-        </Expander>
-
-        <StackPanel Margin="0,16,0,0" Spacing="16" Grid.Row="4" HorizontalAlignment="Center"
-                    IsVisible="{Binding !GetDataCommand.IsRunning}">
-            <Button Classes="accent" Command="{Binding ValidateServerSelectionCommand}" HorizontalAlignment="Center">Continue</Button>
-            <Button Command="{Binding LogOutCommand}" HorizontalAlignment="Center">Log Out</Button>
-        </StackPanel>
+                
+                <!-- Manual Configuration Expander -->
+                <Expander Header="Advanced: Manual Server Configuration">
+                    <Expander.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ia:Icon Value="fa-solid fa-cog" FontSize="14" 
+                                         Opacity="0.6"/>
+                                <TextBlock Text="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Expander.HeaderTemplate>
+                    
+                    <Border Classes="card-secondary" Margin="0,16,0,0">
+                        <StackPanel Spacing="16">
+                            <!-- Use Custom Server Toggle -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="4">
+                                    <TextBlock Text="Use Custom Server" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Connect to a server not in your account" FontSize="12" Opacity="0.6"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" 
+                                              IsChecked="{CompiledBinding UseCustomServer}"
+                                              VerticalAlignment="Center"/>
+                            </Grid>
+                            
+                            <!-- Server IP -->
+                            <StackPanel Spacing="6" IsEnabled="{CompiledBinding UseCustomServer}">
+                                <TextBlock Text="Server IP Address" FontWeight="SemiBold"/>
+                                <TextBox Text="{CompiledBinding CustomServerIp}"
+                                         Watermark="e.g., 192.168.1.100"/>
+                            </StackPanel>
+                            
+                            <!-- Server Port -->
+                            <StackPanel Spacing="6" IsEnabled="{CompiledBinding UseCustomServer}">
+                                <TextBlock Text="Server Port" FontWeight="SemiBold"/>
+                                <TextBox Text="{CompiledBinding CustomServerPort}"
+                                         Watermark="e.g., 32400"/>
+                            </StackPanel>
+                            
+                            <!-- Is Server Owned Toggle -->
+                            <Grid ColumnDefinitions="*,Auto" IsEnabled="{CompiledBinding UseCustomServer}">
+                                <StackPanel Grid.Column="0" Spacing="4">
+                                    <TextBlock Text="I own this server" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Enable additional features for server owners" FontSize="12" Opacity="0.6"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" 
+                                              IsChecked="{CompiledBinding IsCustomServerOwned}"
+                                              VerticalAlignment="Center"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Expander>
+                
+                <!-- Continue Button -->
+                <Button Classes="accent" 
+                        Command="{Binding ValidateServerSelectionCommand}"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,8,0,0">
+                    <TextBlock Text="Continue" FontWeight="SemiBold"/>
+                </Button>
+                
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
-
-
 </UserControl>

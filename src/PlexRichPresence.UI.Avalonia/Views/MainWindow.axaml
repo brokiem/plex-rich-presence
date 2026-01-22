@@ -5,6 +5,7 @@
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="720"
         Width="480" Height="720"
+        WindowStartupLocation="CenterScreen"
         x:Class="PlexRichPresence.UI.Avalonia.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Closing="Window_OnClosing"

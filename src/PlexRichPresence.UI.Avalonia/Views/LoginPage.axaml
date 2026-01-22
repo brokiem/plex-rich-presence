@@ -3,32 +3,96 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:PlexRichPresence.ViewModels;assembly=PlexRichPresence.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="360" d:DesignHeight="720"
+             xmlns:ia="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="720"
              x:Class="PlexRichPresence.UI.Avalonia.Views.LoginPage"
              x:DataType="viewModels:LoginPageViewModel">
-    <Grid Margin="16">
-        <Grid.RowDefinitions>*,.5*,*,*,*,*</Grid.RowDefinitions>
-        <Label Height="64" FontSize="24" HorizontalContentAlignment="Center" HorizontalAlignment="Center">Login to PLEX</Label>
-        <StackPanel Grid.Row="1">
-            <Image Width="150" Height="150" VerticalAlignment="Center" Source="/Assets/plex-rich-presence.png" />
-        </StackPanel>
-        <Grid Grid.Row="3">
-            <Grid.RowDefinitions>*,*,*</Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <Label>Login :</Label>
-                <TextBox Text="{CompiledBinding Login}" />
+    
+    <Grid RowDefinitions="*">
+        <!-- Center content vertically and horizontally -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="32" 
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Center"
+                        Margin="32">
+                
+                <!-- Logo and Title -->
+                <StackPanel Spacing="16" HorizontalAlignment="Center">
+                    <Border Classes="avatar-large" 
+                            HorizontalAlignment="Center">
+                        <Image Source="/Assets/plex-rich-presence.png" 
+                               Stretch="UniformToFill"/>
+                    </Border>
+                    
+                    <StackPanel Spacing="8" HorizontalAlignment="Center">
+                        <TextBlock Text="Plex Rich Presence" 
+                                   FontSize="28"
+                                   FontWeight="SemiBold"
+                                   TextAlignment="Center"/>
+                        <TextBlock Text="Show what you're watching on Discord" 
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   TextAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <!-- Login Card -->
+                <Border Classes="card" Width="380">
+                    <StackPanel Spacing="24">
+                        <TextBlock Text="Sign in to Plex" 
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"/>
+                        
+                        <!-- Credentials Form -->
+                        <StackPanel Spacing="16">
+                            <!-- Username -->
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Email or Username" FontWeight="SemiBold"/>
+                                <TextBox Text="{CompiledBinding Login}"
+                                         Watermark="Enter your email or username"/>
+                            </StackPanel>
+                            
+                            <!-- Password -->
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Password" FontWeight="SemiBold"/>
+                                <TextBox PasswordChar="•" 
+                                         Text="{CompiledBinding Password}"
+                                         Watermark="Enter your password"/>
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <!-- Login Button -->
+                        <Button Classes="accent" 
+                                Command="{Binding LoginWithCredentialsCommand}"
+                                HorizontalAlignment="Stretch">
+                            <TextBlock Text="Sign In" FontWeight="SemiBold"/>
+                        </Button>
+                        
+                        <!-- Divider -->
+                        <Grid ColumnDefinitions="*,Auto,*" Margin="0,8">
+                            <Separator Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" 
+                                       Text="or" 
+                                       FontSize="12"
+                                       Opacity="0.6"
+                                       Margin="16,0"/>
+                            <Separator Grid.Column="2" VerticalAlignment="Center"/>
+                        </Grid>
+                        
+                        <!-- Browser Login -->
+                        <Button Command="{Binding LoginWithBrowserCommand}"
+                                HorizontalAlignment="Stretch">
+                            <TextBlock Text="Sign in with browser"/>
+                        </Button>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Footer -->
+                <TextBlock Text="Your credentials are only used to authenticate with Plex" 
+                           FontSize="12"
+                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                           TextAlignment="Center"/>
             </StackPanel>
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <Label>Password :</Label>
-                <TextBox PasswordChar="•" Text="{CompiledBinding Password}" />
-            </StackPanel>
-        </Grid>
-        <Grid Grid.Row="4">
-            <Grid.RowDefinitions>*,*,*</Grid.RowDefinitions>
-            <Button Grid.Row="0" Command="{Binding LoginWithCredentialsCommand}" HorizontalAlignment="Center">Login</Button>
-            <Label Grid.Row="1" HorizontalContentAlignment="Center">Or</Label>
-            <Button Grid.Row="2" Command="{Binding LoginWithBrowserCommand}" HorizontalAlignment="Center">Login with browser</Button>
-        </Grid>
-
+        </ScrollViewer>
     </Grid>
 </UserControl>

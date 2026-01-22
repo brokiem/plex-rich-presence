@@ -2,12 +2,99 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sty="using:FluentAvalonia.Styling"
              x:Class="PlexRichPresence.UI.Avalonia.App">
+    
+    <Application.Resources>
+        <!-- Plex Brand Colors -->
+        <Color x:Key="PlexOrange">#E5A00D</Color>
+        <Color x:Key="PlexSuccess">#6CCB5F</Color>
+        <Color x:Key="PlexError">#FF6B6B</Color>
+        
+        <SolidColorBrush x:Key="PlexOrangeBrush" Color="{StaticResource PlexOrange}"/>
+        <SolidColorBrush x:Key="PlexSuccessBrush" Color="{StaticResource PlexSuccess}"/>
+        <SolidColorBrush x:Key="PlexErrorBrush" Color="{StaticResource PlexError}"/>
+    </Application.Resources>
+    
     <Application.Styles>
-        <Style Selector="Button,TextBox, Label, ComboBox">
-            <Setter Property="Width" Value="200" />
-            <Setter Property="Height" Value="32" />
+        <!-- FluentAvalonia with Plex accent color -->
+        <sty:FluentAvaloniaTheme CustomAccentColor="{StaticResource PlexOrange}"/>
+        
+        <!-- Cards -->
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
         </Style>
-        <sty:FluentAvaloniaTheme />
+        
+        <Style Selector="Border.card-secondary">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorSecondaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+        
+        <!-- Status Indicators -->
+        <Style Selector="Ellipse.status-online">
+            <Setter Property="Fill" Value="{StaticResource PlexSuccessBrush}"/>
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Height" Value="8"/>
+        </Style>
+        
+        <Style Selector="Ellipse.status-offline">
+            <Setter Property="Fill" Value="{StaticResource PlexErrorBrush}"/>
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Height" Value="8"/>
+        </Style>
+        
+        <!-- Image Containers -->
+        <Style Selector="Border.avatar">
+            <Setter Property="CornerRadius" Value="999"/>
+            <Setter Property="ClipToBounds" Value="True"/>
+            <Setter Property="Width" Value="64"/>
+            <Setter Property="Height" Value="64"/>
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}"/>
+        </Style>
+        
+        <Style Selector="Border.avatar-large">
+            <Setter Property="CornerRadius" Value="999"/>
+            <Setter Property="ClipToBounds" Value="True"/>
+            <Setter Property="Width" Value="96"/>
+            <Setter Property="Height" Value="96"/>
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}"/>
+        </Style>
+        
+        <Style Selector="Border.thumbnail">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="ClipToBounds" Value="True"/>
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}"/>
+        </Style>
+        
+        <!-- Badges -->
+        <Style Selector="Border.badge-accent">
+            <Setter Property="Background" Value="{StaticResource PlexOrangeBrush}"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+        
+        <Style Selector="Border.badge-accent TextBlock">
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        
+        <Style Selector="Border.badge-subtle">
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+        
+        <Style Selector="Border.badge-subtle TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
     </Application.Styles>
 
     <TrayIcon.Icons>
@@ -24,3 +111,4 @@
         </TrayIcons>
     </TrayIcon.Icons>
 </Application>
+

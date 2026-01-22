@@ -3,46 +3,174 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:PlexRichPresence.ViewModels;assembly=PlexRichPresence.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:ia="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="720"
              x:Class="PlexRichPresence.UI.Avalonia.Views.ActivityPage"
              x:DataType="viewModels:PlexActivityPageViewModel">
-
-    <Grid Margin="16">
-        <Grid.RowDefinitions>*,*,*,*</Grid.RowDefinitions>
-
-        <StackPanel HorizontalAlignment="Center">
-            <StackPanel Orientation="Horizontal">
-                <Label>Server Ip : </Label>
-                <Label Content="{CompiledBinding PlexServerIp}" />
+    
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="24" Margin="32">
+                
+                <!-- Header -->
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                        <TextBlock Text="Now Playing" FontSize="20" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Classes="status-online" 
+                                     IsVisible="{CompiledBinding !IsServerUnreachable}"/>
+                            <Ellipse Classes="status-offline" 
+                                     IsVisible="{CompiledBinding IsServerUnreachable}"/>
+                            <TextBlock FontSize="12" Opacity="0.6">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}Connected to {0}:{1}">
+                                        <CompiledBinding Path="PlexServerIp"/>
+                                        <CompiledBinding Path="PlexServerPort"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <!-- Change Server Button -->
+                    <Button Grid.Column="1" 
+                            Command="{Binding ChangeServerCommand}"
+                            VerticalAlignment="Center"
+                            Classes="Subtle">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Change Server"/>
+                            <ia:Icon Value="fa-solid fa-chevron-right" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+                
+                <!-- Error State -->
+                <Border Classes="card" 
+                        IsVisible="{CompiledBinding IsServerUnreachable}"
+                        BorderBrush="{StaticResource PlexErrorBrush}"
+                        BorderThickness="1">
+                    <StackPanel Spacing="16" HorizontalAlignment="Center">
+                        <ia:Icon Value="fa-solid fa-exclamation-triangle" 
+                                 FontSize="48" 
+                                 Foreground="{StaticResource PlexErrorBrush}"/>
+                        <TextBlock Text="Cannot Reach Server" 
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   TextAlignment="Center"/>
+                        <TextBlock Text="Unable to connect to your Plex server. Please check your connection and try again."
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="300"/>
+                        <Button Classes="accent" 
+                                Command="{Binding ChangeServerCommand}"
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="Select Different Server" FontWeight="SemiBold"/>
+                        </Button>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Now Playing Card -->
+                <Border Classes="card" IsVisible="{CompiledBinding !IsServerUnreachable}">
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+                        <!-- Thumbnail -->
+                        <Border Grid.Column="0" 
+                                Classes="thumbnail" 
+                                Width="120" Height="120">
+                            <Panel>
+                                <!-- Placeholder Icon -->
+                                <ia:Icon Value="fa-solid fa-film" 
+                                         FontSize="32" 
+                                         Opacity="0.5"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         IsVisible="{CompiledBinding CurrentActivity, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
+                                <!-- Actual Thumbnail -->
+                                <Image x:Name="thumbnail" 
+                                       Stretch="UniformToFill"/>
+                            </Panel>
+                        </Border>
+                        
+                        <!-- Media Info -->
+                        <StackPanel Grid.Column="1" 
+                                    Margin="20,0,0,0" 
+                                    VerticalAlignment="Center" 
+                                    Spacing="8">
+                            <!-- Status Badge -->
+                            <Border Classes="badge-accent" 
+                                    HorizontalAlignment="Left"
+                                    IsVisible="{CompiledBinding CurrentActivity, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <ia:Icon Value="fa-solid fa-play" FontSize="10" Foreground="#1F1F1F"/>
+                                    <TextBlock Text="WATCHING" 
+                                               FontSize="11" 
+                                               FontWeight="Bold"
+                                               Foreground="#1F1F1F"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Title -->
+                            <TextBlock Text="{CompiledBinding CurrentActivity, TargetNullValue='Nothing playing', FallbackValue='Nothing playing'}"
+                                       FontSize="16"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxWidth="220"/>
+                            
+                            <!-- Subtitle (showing on Discord) -->
+                            <TextBlock Text="Showing on Discord Rich Presence"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- Settings Card -->
+                <Border Classes="card" IsVisible="{CompiledBinding !IsServerUnreachable}">
+                    <StackPanel Spacing="20">
+                        <TextBlock Text="Settings" FontSize="16" FontWeight="SemiBold"/>
+                        
+                        <!-- Show Idle Status Toggle -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Show Idle Status" FontWeight="SemiBold"/>
+                                <TextBlock Text="Display status on Discord when not playing anything"
+                                           FontSize="12" Opacity="0.6"/>
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" 
+                                          IsChecked="{CompiledBinding EnableIdleStatus, Mode=TwoWay}"
+                                          VerticalAlignment="Center"/>
+                        </Grid>
+                        
+                        <!-- Server Info (collapsible details) -->
+                        <Separator/>
+                        
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Connected Server" FontWeight="SemiBold"/>
+                            <Border Classes="card-secondary" Padding="12">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <ia:Icon Grid.Column="0" 
+                                             Value="fa-solid fa-server" 
+                                             FontSize="16" 
+                                             Opacity="0.6"/>
+                                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                        <TextBlock Text="{CompiledBinding PlexServerIp}"/>
+                                        <TextBlock FontSize="12" Opacity="0.6">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="{}Port: {0}">
+                                                    <CompiledBinding Path="PlexServerPort"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <Ellipse Grid.Column="2" 
+                                             Classes="status-online"
+                                             VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <Label>Server Port : </Label>
-                <Label Content="{CompiledBinding PlexServerPort}" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <Label>Display Idle Status : </Label>
-                <ToggleSwitch VerticalAlignment="Center" IsChecked="{CompiledBinding EnableIdleStatus, Mode=TwoWay}" />
-            </StackPanel>
-        </StackPanel>
-        <StackPanel Spacing="16" Grid.Row="1">
-            <Label
-                Width="600"
-                IsVisible="{CompiledBinding !IsServerUnreachable}"
-                HorizontalContentAlignment="Center"
-                Content="{CompiledBinding CurrentActivity}" />
-            <Image VerticalAlignment="Top" x:Name="thumbnail" Width="100" Height="100"
-                   IsVisible="{CompiledBinding !IsServerUnreachable}"/>
-            <Label
-                IsVisible="{CompiledBinding IsServerUnreachable}"
-                HorizontalContentAlignment="Center"
-                Content="Can't reach server !"
-                Foreground="Red" />
-            <Button
-                HorizontalAlignment="Center"
-                Command="{Binding ChangeServerCommand}">
-                Change Server
-            </Button>
-        </StackPanel>
+        </ScrollViewer>
     </Grid>
-
 </UserControl>

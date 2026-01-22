@@ -70,6 +70,9 @@ public partial class PlexActivityPageViewModel : ObservableObject
     [RelayCommand]
     private async Task StartActivity()
     {
+        // Reset the unreachable flag when starting a new activity session
+        IsServerUnreachable = false;
+        
         try
         {
             await foreach (PlexSession session in plexActivityService.GetSessions(

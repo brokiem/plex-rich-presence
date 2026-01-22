@@ -53,11 +53,11 @@ jobs:
           cd src/PlexRichPresence.UI.Avalonia
           dotnet tool install --global DotnetPackaging.Tool
           export PATH="$PATH:/github/home/.dotnet/tools"
-          dotnet publish --runtime linux-x64 --configuration Release -p:PublishSingleFile=true --self-contained true
-          cp ./Assets/plex-rich-presence.png ./bin/Release/net10.0/linux-x64/publish/icon.png
+          dotnet publish --runtime linux-x86 --configuration Release -p:PublishSingleFile=true --self-contained true
+          cp ./Assets/plex-rich-presence.png ./bin/Release/net10.0/linux-x86/publish/icon.png
           mkdir artifacts
-          dotnetpackager deb --directory ./bin/Release/net10.0/linux-x64/publish \
-            --output ./artifacts/plex-rich-presence_$(cat ../../version.txt)_linux64.deb \
+          dotnetpackager deb --directory ./bin/Release/net10.0/linux-x86/publish \
+            --output ./artifacts/plex-rich-presence_$(cat ../../version.txt)_linux32.deb \
             --application-name "PLEX Rich Presence" \
             --summary "App that allows you to display your current PLEX session in your Discord Rich presence status." \
             --homepage https://github.com/ombrelin/plex-rich-presence \
@@ -76,7 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build Executable
-        run: cd src/PlexRichPresence.UI.Avalonia/ && dotnet publish --runtime win-x64 --configuration Release -p:PublishSingleFile=true --self-contained true --output C:\temp\plex-rich-presence
+        run: cd src/PlexRichPresence.UI.Avalonia/ && dotnet publish --runtime win-x86 --configuration Release -p:PublishSingleFile=true --self-contained true --output C:\temp\plex-rich-presence
       - name: Compile Installer
         run: iscc installers/windows/installer.iss /dBuildNumber=${{github.run_number}} /dMyAppURL=https://github.com/${{github.repository}}
       - name: Save Installer as Artifact

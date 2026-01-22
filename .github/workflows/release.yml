@@ -42,7 +42,7 @@ jobs:
     name: Build, Test and compile executable on Linux
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/dotnet/sdk:8.0
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     needs: [compute-version]
     steps:
       - uses: actions/checkout@v2
@@ -54,9 +54,9 @@ jobs:
           dotnet tool install --global DotnetPackaging.Tool
           export PATH="$PATH:/github/home/.dotnet/tools"
           dotnet publish --runtime linux-x64 --configuration Release -p:PublishSingleFile=true --self-contained true
-          cp ./Assets/plex-rich-presence.png ./bin/Release/net8.0/linux-x64/publish/icon.png
+          cp ./Assets/plex-rich-presence.png ./bin/Release/net10.0/linux-x64/publish/icon.png
           mkdir artifacts
-          dotnetpackager deb --directory ./bin/Release/net8.0/linux-x64/publish \
+          dotnetpackager deb --directory ./bin/Release/net10.0/linux-x64/publish \
             --output ./artifacts/plex-rich-presence_$(cat ../../version.txt)_linux64.deb \
             --application-name "PLEX Rich Presence" \
             --summary "App that allows you to display your current PLEX session in your Discord Rich presence status." \

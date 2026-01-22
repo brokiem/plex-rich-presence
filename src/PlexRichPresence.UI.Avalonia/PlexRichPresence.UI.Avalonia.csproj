@@ -4,7 +4,7 @@
         <TrimMode>link</TrimMode>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <Version>2.2.1</Version>
-    </PropertyGroup>
+        <Version>2.2.1</Version>
     <ItemGroup>
         <Content Include="plexrichpresence.desktop" CopyToPublishDirectory="Always">
             <LinuxPath>/usr/share/applications/plexrichpresence.desktop</LinuxPath>

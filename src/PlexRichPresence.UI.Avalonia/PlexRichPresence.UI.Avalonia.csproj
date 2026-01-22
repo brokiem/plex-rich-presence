@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
-        <TrimMode>copyused</TrimMode>
+        <TrimMode>link</TrimMode>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <Version>2.2.0</Version>
     </PropertyGroup>

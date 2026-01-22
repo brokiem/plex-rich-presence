@@ -170,7 +170,9 @@ public class App : Application
                          ?? throw new InvalidOperationException(
                              "Can't get logger from DI");
             var enabledIdleStatusStringValue = viewModel.EnableIdleStatus.ToString();
-            storageService.PutAsync("enableIdleStatus", enabledIdleStatusStringValue);
+            
+            // Properly await the async operation
+            storageService.PutAsync("enableIdleStatus", enabledIdleStatusStringValue).Wait();
             logger.Log(LogLevel.Information, "Saving setting enableIdleStatus to storage with value : {Value}", enabledIdleStatusStringValue);
         }
 

@@ -12,5 +12,5 @@ public class FakeDiscordService : IDiscordService
         Sessions.Add(session);
     }
 
-    public void StopRichPresence() { }
+    public Task StopRichPresence() { return Task.CompletedTask; }
 }

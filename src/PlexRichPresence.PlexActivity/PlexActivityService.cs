@@ -19,7 +19,6 @@ public class PlexActivityService : IPlexActivityService
         PlexSessionMapper plexSessionMapper)
     {
         this.plexServerClient = plexServerClient;
-        this.plexServerClient = plexServerClient;
         this.clock = clock;
         this.wsLogger = wsLogger;
         this.pollingLogger = pollingLogger;
@@ -30,6 +29,9 @@ public class PlexActivityService : IPlexActivityService
     public IAsyncEnumerable<PlexSession> GetSessions(bool isOwner, string userId, string serverIp, int serverPort,
         string userToken)
     {
+        // Disconnect old strategy before creating a new one
+        this.strategy?.Disconnect();
+        
         this.strategy = isOwner
             ? new PlexSessionsPollingStrategy(pollingLogger, plexServerClient, this.clock, plexSessionMapper)
             : new PlexSessionsWebSocketStrategy(wsLogger, plexServerClient, new WebSocketClientFactory(),

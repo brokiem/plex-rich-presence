@@ -13,7 +13,7 @@ public class DiscordService : IDiscordService
     private readonly PlexSessionRenderingService plexSessionRenderingService;
     private PlexSession? currentSession;
     private CancellationTokenSource stopTokenSource = new();
-    private bool stopFlag = false;
+    private readonly SemaphoreSlim stopSemaphore = new(1, 1);
 
     public DiscordService(ILogger<DiscordService> logger, PlexSessionRenderingService plexSessionRenderingService)
     {
@@ -33,39 +33,65 @@ public class DiscordService : IDiscordService
 
     public void SetDiscordPresenceToPlexSession(PlexSession session)
     {
-        if (session == currentSession)
+        // Check if this is a meaningful change
+        // Compare key properties to detect changes faster
+        bool isSignificantChange = currentSession == null ||
+                                    session.MediaTitle != currentSession.MediaTitle ||
+                                    session.PlayerState != currentSession.PlayerState ||
+                                    session.ViewOffset != currentSession.ViewOffset ||
+                                    session.MediaType != currentSession.MediaType;
+        
+        if (!isSignificantChange)
         {
             return;
         }
 
-        if (stopFlag) stopTokenSource.Cancel();
+        try
+        {
+            stopTokenSource.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+            // Token source was already disposed, create a new one
+        }
 
         currentSession = session;
         RichPresence richPresence = plexSessionRenderingService.RenderSession(session);
         discordRpcClient ??= CreateRpcClient();
         discordRpcClient.SetPresence(richPresence);
+        
+        logger.LogDebug("Updated Discord RPC: {Title} - {State}", session.MediaTitle, session.PlayerState);
     }
 
-    public async void StopRichPresence()
+    public async Task StopRichPresence()
     {
-        if (stopFlag) return; // If we are already stopping, dont try again (race conditions, yay!)
-        stopFlag = true;
+        // Use semaphore to prevent concurrent calls
+        if (!await stopSemaphore.WaitAsync(0))
+        {
+            return; // Already stopping
+        }
 
-        // Tbh this is kinda ugly... But I dont think there is a better way since the actual session in plex closes for like 500ms between tracks
         try
         {
-            await Task.Delay(10_000, stopTokenSource.Token);
+            await Task.Delay(3_000, stopTokenSource.Token);
 
             discordRpcClient?.Deinitialize();
             discordRpcClient = null;
             currentSession = null;
         }
-        catch (TaskCanceledException) { } // Throws and crashes if this is not here
+        catch (TaskCanceledException)
+        {
+            // Task was cancelled, this is expected when a new session starts
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error stopping rich presence");
+        }
         finally
         {
             stopTokenSource.Dispose();
-            stopTokenSource = new();
-            stopFlag = false;
+            stopTokenSource = new CancellationTokenSource();
+            stopSemaphore.Release();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -108,7 +108,17 @@ public partial class ServersPageViewModel
     {
         if (this.UseCustomServer)
         {
-            return (this.CustomServerIp, int.Parse(this.CustomServerPort), this.IsCustomServerOwned);
+            if (!int.TryParse(this.CustomServerPort, out int port) || port <= 0 || port > 65535)
+            {
+                throw new ArgumentException("Invalid port number. Must be between 1 and 65535.");
+            }
+            
+            if (string.IsNullOrWhiteSpace(this.CustomServerIp))
+            {
+                throw new ArgumentException("Server IP cannot be empty.");
+            }
+            
+            return (this.CustomServerIp, port, this.IsCustomServerOwned);
         }
         else if (this.SelectedServer is not null)
         {

@@ -16,6 +16,7 @@ public class PlexSessionsWebSocketStrategy : IPlexSessionStrategy
     private readonly IPlexServerClient plexServerClient;
     private readonly IWebSocketClientFactory webSocketClientFactory;
     private readonly PlexSessionMapper plexSessionMapper;
+    private volatile bool isDisconnected;
 
     public PlexSessionsWebSocketStrategy(
         ILogger<PlexSessionsWebSocketStrategy> logger,
@@ -45,9 +46,30 @@ public class PlexSessionsWebSocketStrategy : IPlexSessionStrategy
         await client.Start();
 
         logger.LogInformation("Listening to sessions via websocket for user : {Username}", username);
+        
         await foreach ((string key, string state, long viewOffset) in sessions)
         {
-            yield return await ExtractPlexSession(serverIp, serverPort, userToken, key, state, viewOffset);
+            if (isDisconnected)
+            {
+                logger.LogInformation("WebSocket strategy disconnected, stopping session enumeration");
+                yield break;
+            }
+
+            PlexSession? session = null;
+            try
+            {
+                session = await ExtractPlexSession(serverIp, serverPort, userToken, key, state, viewOffset);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error extracting Plex session from websocket message");
+                continue;
+            }
+
+            if (session != null)
+            {
+                yield return session;
+            }
         }
     }
 
@@ -90,9 +112,19 @@ public class PlexSessionsWebSocketStrategy : IPlexSessionStrategy
 
     private JsonNode ExtractNotification(ResponseMessage message)
     {
-        this.logger.LogInformation("Detected session");
-        JsonNode webSocketMessage = JsonNode.Parse(message.Text) ??
-                                    throw new ArgumentException("Can't parse WebSocket message as JSON");
+        this.logger.LogDebug("Detected websocket message");
+        
+        if (string.IsNullOrEmpty(message.Text))
+        {
+            throw new ArgumentException("WebSocket message text is null or empty");
+        }
+        
+        JsonNode? webSocketMessage = JsonNode.Parse(message.Text);
+        if (webSocketMessage == null)
+        {
+            throw new ArgumentException("Can't parse WebSocket message as JSON");
+        }
+        
         return webSocketMessage["NotificationContainer"] ??
                throw new ArgumentException("WebSocket message has no notification");
     }
@@ -105,7 +137,19 @@ public class PlexSessionsWebSocketStrategy : IPlexSessionStrategy
 
     public void Disconnect()
     {
-        client?.Stop(WebSocketCloseStatus.NormalClosure, "Stopped");
-        client?.Dispose();
+        isDisconnected = true;
+        try
+        {
+            client?.Stop(WebSocketCloseStatus.NormalClosure, "Stopped");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Error stopping WebSocket client");
+        }
+        finally
+        {
+            client?.Dispose();
+            client = null;
+        }
     }
 }

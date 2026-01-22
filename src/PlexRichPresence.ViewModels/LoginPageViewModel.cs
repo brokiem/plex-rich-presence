@@ -60,18 +60,25 @@ public partial class LoginPageViewModel
 
     private async Task<OAuthPin> WaitForBrowserLogin(OAuthPin oauthUrl)
     {
+        const int maxAttempts = 150; // 5 minutes with 2-second delays
+        int attempts = 0;
         OAuthPin plexPin;
-        while (true)
+        
+        while (attempts < maxAttempts)
         {
             plexPin = await this.plexClient.GetAuthTokenFromOAuthPinAsync(oauthUrl.Id.ToString());
             if (string.IsNullOrEmpty(plexPin.AuthToken))
             {
                 await this.clock.Delay(TimeSpan.FromSeconds(2));
+                attempts++;
             }
-            else break;
+            else
+            {
+                return plexPin;
+            }
         }
 
-        return plexPin;
+        throw new TimeoutException("Browser login timeout after 5 minutes");
     }
 
     private async Task<OAuthPin> OpenBrowserWitnPin()

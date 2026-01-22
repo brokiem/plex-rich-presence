@@ -27,15 +27,26 @@ public class StorageService : IStorageService
             return;
         }
 
-        var storedData = await ReadStoredData();
+        try
+        {
+            var storedData = await ReadStoredData();
 
-        await Task.WhenAll(
-            storedData
-                .Select(kvp => BlobCache.Secure.InsertObject(kvp.Key, kvp.Value).ToTask())
-                .ToArray()
-        );
-        
-        File.Delete(storedDataPath);
+            if (storedData != null && storedData.Count > 0)
+            {
+                await Task.WhenAll(
+                    storedData
+                        .Select(kvp => BlobCache.Secure.InsertObject(kvp.Key, kvp.Value).ToTask())
+                        .ToArray()
+                );
+            }
+            
+            File.Delete(storedDataPath);
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't crash - migration from old storage format is optional
+            Console.Error.WriteLine($"Error migrating stored data: {ex.Message}");
+        }
     }
 
     public async Task PutAsync(string key, string value)
@@ -95,11 +106,9 @@ public class StorageService : IStorageService
         }
     }
 
-    public Task RemoveAsync(string key)
+    public async Task RemoveAsync(string key)
     {
-        BlobCache.Secure.Invalidate(key);
-        BlobCache.Secure.Vacuum();
-
-        return Task.CompletedTask;
+        await BlobCache.Secure.Invalidate(key);
+        await BlobCache.Secure.Vacuum();
     }
 }

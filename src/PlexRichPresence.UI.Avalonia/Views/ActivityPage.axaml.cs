@@ -12,6 +12,7 @@ public partial class ActivityPage : UserControl
     private static readonly HttpClient SharedHttpClient = new();
     private CancellationTokenSource? _thumbnailCts;
     private string? _currentThumbnailUrl;
+    private Bitmap? _currentBitmap;
 
     public ActivityPage()
     {
@@ -56,7 +57,13 @@ public partial class ActivityPage : UserControl
             {
                 var imageControl = this.FindControl<Image>("thumbnail");
                 if (imageControl != null)
+                {
                     imageControl.Source = null;
+                }
+                
+                // Dispose old bitmap
+                _currentBitmap?.Dispose();
+                _currentBitmap = null;
             });
             return;
         }
@@ -100,8 +107,19 @@ public partial class ActivityPage : UserControl
                 {
                     var imageControl = this.FindControl<Image>("thumbnail");
                     if (imageControl != null)
+                    {
                         imageControl.Source = bitmap;
+                    }
+                    
+                    // Dispose old bitmap and store new one
+                    _currentBitmap?.Dispose();
+                    _currentBitmap = bitmap;
                 });
+            }
+            else
+            {
+                // Bitmap was null or cancelled, dispose it
+                bitmap?.Dispose();
             }
         }
         catch (OperationCanceledException)

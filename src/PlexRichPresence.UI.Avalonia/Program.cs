@@ -33,9 +33,14 @@ namespace PlexRichPresence.UI.Avalonia
         {
             IconProvider.Current
                 .Register<FontAwesomeIconProvider>();
-            
+
+            // use software rendering to save memory
             return AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .With(new Win32PlatformOptions
+                {
+                    RenderingMode = [Win32RenderingMode.Software]
+                })
                 .LogToTrace();
         }
     }

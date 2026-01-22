@@ -228,7 +228,7 @@ public class PlexSessionRenderingServiceTests
                 ActivityType.Watching,
                 StatusDisplayType.State,
                 "Test Grand Parent Title", // Status
-                "S01E02 Test Episode", // Details
+                "S1 · E2 — Test Episode", // Details
                 false, // Expect Timestamp
                 "sand-clock"
             },
@@ -249,7 +249,7 @@ public class PlexSessionRenderingServiceTests
                 ActivityType.Watching,
                 StatusDisplayType.State,
                 "Test Grand Parent Title", // Status
-                "S01E02 Test Episode", // Details
+                "S1 · E2 — Test Episode", // Details
                 false, // Expect Timestamp
                 "pause-circle"
             },
@@ -270,7 +270,7 @@ public class PlexSessionRenderingServiceTests
                 ActivityType.Watching,
                 StatusDisplayType.State,
                 "Test Grand Parent Title", // Status
-                "S01E02 Test Episode", // Details
+                "S1 · E2 — Test Episode", // Details
                 true, // Expect Timestamp
                 null
             },
